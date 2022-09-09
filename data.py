@@ -1,3 +1,5 @@
+import requests
+import random
 from question_model import Question
 
 raw_data = [{"category": "General Knowledge", "type": "boolean", "difficulty": "medium",
@@ -36,6 +38,36 @@ raw_data = [{"category": "General Knowledge", "type": "boolean", "difficulty": "
 
 def get_question_data():
     questions = []
-    for data in raw_data:
-        questions.append(Question(data["question"], data["correct_answer"]))
+    res = requests.get(format_req_url())
+    if res.status_code == 200:
+        for data in res.json()["results"]:
+            options = [data["correct_answer"]] + data["incorrect_answers"]
+            random.shuffle(options)
+            options_fmt = f"({'/'.join(options)})"
+            question = Question(data["question"], data["correct_answer"], data["type"], options_fmt)
+            questions.append(question)
+    else:
+        for data in raw_data:
+            options = [data["correct_answer"]] + data["incorrect_answers"]
+            random.shuffle(options)
+            options_fmt = f"({'/'.join(options)})"
+            questions.append(Question(data["question"], data["correct_answer"], data["type"], options_fmt))
+
     return questions
+
+
+def format_req_url():
+    amount = f"amount={input('How many questions?: ') or '10'}&"
+
+    user_difficulty = input('How hard?: (easy/medium/hard)')
+    difficulty = ""
+    if not user_difficulty == "":
+        difficulty = f"difficulty={user_difficulty}&"
+
+    user_type = input('What type of answers should there be?: (boolean/multiple)')
+    answer_type = ""
+    if not user_type == "":
+        answer_type = f"type={user_type}"
+
+    return f'https://opentdb.com/api.php?{amount}{difficulty}{answer_type}'
+
