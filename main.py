@@ -1,11 +1,9 @@
 from quiz_brain import QuizBrain
 from data import get_question_data
+from ui import QuizInterface
 
-quiz_brain = QuizBrain(get_question_data())
+questions = get_question_data()
 
-score = 0
-while quiz_brain.still_has_questions():
-    quiz_brain.next_question()
+quiz_brain = QuizBrain(questions)
+quiz_ui = QuizInterface(quiz_brain)
 
-print("You've completed the quiz")
-print(f"Your final score was: {quiz_brain.score}/{quiz_brain.question_number}")

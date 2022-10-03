@@ -38,7 +38,13 @@ raw_data = [{"category": "General Knowledge", "type": "boolean", "difficulty": "
 
 def get_question_data():
     questions = []
-    res = requests.get(format_req_url())
+    parameters = {
+        "type": "boolean",
+        "amount": 10,
+        "difficulty": "easy"
+    }
+    res = requests.get('https://opentdb.com/api.php?', params=parameters)
+    res.raise_for_status()
     if res.status_code == 200:
         for data in res.json()["results"]:
             options = [data["correct_answer"]] + data["incorrect_answers"]
